@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UnitTaskVO {
+	
 	private String id;
 	private String level1;
 	private String level2;
@@ -14,7 +15,4 @@ public class UnitTaskVO {
 	private String level5;
 	private String level6;
 	private String department;
-	
-	
-	
 }
