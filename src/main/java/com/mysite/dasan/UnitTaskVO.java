@@ -7,6 +7,9 @@ import lombok.Setter;
 @Setter
 public class UnitTaskVO {
 	
+	
+	
+	
 	private String id;
 	private String level1;
 	private String level2;
