@@ -1,0 +1,26 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.1.2)
+
+2025-12-01T13:50:46.572Z  INFO 151027 --- [           main] com.mysite.dasan.DasanApplication        : Starting DasanApplication v0.0.1-SNAPSHOT using Java 21.0.9 with PID 151027 (/home/ubuntu/dasan/dasan-0.0.1-SNAPSHOT.jar started by ubuntu in /home/ubuntu/dasan)
+2025-12-01T13:50:46.579Z  INFO 151027 --- [           main] com.mysite.dasan.DasanApplication        : The following 1 profile is active: "prod"
+2025-12-01T13:50:49.781Z  INFO 151027 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2025-12-01T13:50:49.798Z  INFO 151027 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-01T13:50:49.799Z  INFO 151027 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.11]
+2025-12-01T13:50:49.955Z  INFO 151027 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-01T13:50:49.960Z  INFO 151027 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2736 ms
+2025-12-01T13:50:51.079Z  INFO 151027 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@529cfee5, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7ca0863b, org.springframework.security.web.context.SecurityContextHolderFilter@562c877a, org.springframework.security.web.header.HeaderWriterFilter@963176, org.springframework.security.web.csrf.CsrfFilter@67dba613, org.springframework.security.web.authentication.logout.LogoutFilter@3766c667, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@7df60067, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@989da1, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3eed0f5, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@319854f0, org.springframework.security.web.access.ExceptionTranslationFilter@3a627c80, org.springframework.security.web.access.intercept.AuthorizationFilter@22d1886d]
+2025-12-01T13:50:52.045Z  INFO 151027 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2025-12-01T13:50:52.151Z  INFO 151027 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2025-12-01T13:50:52.196Z  INFO 151027 --- [           main] com.mysite.dasan.DasanApplication        : Started DasanApplication in 6.43 seconds (process running for 7.462)
+2025-12-01T13:50:52.332Z  INFO 151027 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-01T13:50:52.332Z  INFO 151027 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-01T13:50:52.337Z  INFO 151027 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 5 ms
+2025-12-01T13:51:02.786Z  INFO 151027 --- [nio-8080-exec-2] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-01T13:51:03.200Z  INFO 151027 --- [nio-8080-exec-2] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@51ac8c6e
+2025-12-01T13:51:03.204Z  INFO 151027 --- [nio-8080-exec-2] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.

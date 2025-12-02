@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="www.ultraq.net.nz" layout:decorate="~{default_layout}">
+<!-- 기본 레이아웃 적용 선언 -->
+
+<head>
+	<title>dasanSoft</title>
+	<!-- 이 페이지에만 필요한 추가 CSS/JS는 여기에 정의 -->
+	<th:block layout:fragment="css-js-extra">
+		<style>
+			.progress-bar {
+				transition: width 0.5s ease-in-out;
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<!-- default_layout.html의 layout:fragment="content" 영역에 들어갈 내용 -->
+	<div layout:fragment="content">
+		<!-- 상단 JVM Memory 사용률 박스 -->
+		<div class="container mt-4">
+			<h1 class="mb-4">JVM(Java Virtual Machine) Memory 사용률 </h1>
+
+			<div class="card">
+				<div class="card-header">
+					메모리 사용 현황
+				</div>
+				<div class="card-body">
+					<!-- 메모리 정보 표시 영역 -->
+					<p>a. 서버 전체 메모리: <strong id="totalMemory">0 MB</strong></p>
+					<p>b. JVM 전체 메모리: <strong id="committedMemory">0 MB</strong></p>
+					<p>c. JVM 사용 메모리: <strong id="usedMemory">0 MB</strong></p>
+					<p>d. 사용률(c/b*100): <strong id="usagePercent">0%</strong></p>
+
+					<!-- 바 그래프 (Progress Bar) -->
+					<div class="progress">
+						<div id="memoryProgressBar" class="progress-bar bg-info" role="progressbar" style="width: 0%;"
+							aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 하단 엑셀다운 박스 (mt-5를 사용하여 상단 박스와 간격 유지) -->
+			<div class="mt-5">
+
+				<!-- 엑셀다운 제목 -->
+				<h2 class="mb-4">엑셀다운</h2>
+
+				<!-- 버튼 영역 및 설명 -->
+				<div class="card p-4">
+
+					<div sec:authorize="!hasRole('ROLE_ADMIN')" class="mt-3">
+						<p class="text-danger h5 fw-bold mb-0">총괄 관리자만 엑셀 다운이 가능합니다.</p>
+					</div>
+
+					<div class="mb-3" sec:authorize="hasRole('ROLE_ADMIN')">
+						<h6 class="fw-bold mb-2">엑셀다운 행 개수</h6>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="rowCountOption" id="rowCount50k"
+								value="50000" checked>
+							<label class="form-check-label" for="rowCount50k">5만</label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="rowCountOption" id="rowCount500k"
+								value="500000">
+							<label class="form-check-label" for="rowCount500k">50만</label>
+						</div>
+					</div>
+
+					<div class="d-flex gap-3 mt-3">
+						<button id="memoryModeBtn" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')">
+							고메모리 방식
+						</button>
+						<button id="memoryModeBtn_disabled" class="btn btn-primary" disabled
+							sec:authorize="!hasRole('ROLE_ADMIN')">
+							고메모리 방식
+						</button>
+
+						<button id="hardDiskModeBtn" class="btn btn-secondary" sec:authorize="hasRole('ROLE_ADMIN')">
+							저메모리 방식
+						</button>
+						<button id="hardDiskModeBtn_disabled" class="btn btn-secondary" disabled
+							sec:authorize="!hasRole('ROLE_ADMIN')">
+							저메모리 방식
+						</button>
+					</div>
+
+					<!-- 방식별 특징 설명 표 -->
+					<!-- 테이블 영역에도 mt-3 클래스를 적용하여 상단 공백 확보 -->
+					<div class="mt-3">
+						<table class="table table-bordered table-sm">
+							<thead class="table-light">
+								<tr>
+									<th>구분</th>
+									<th>특징</th>
+									<th>대용량 엑셀 다운 시</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><strong>고메모리 방식</strong></td>
+									<td>모든 데이터를 서버 메모리에 적재</td>
+									<td>데이터가 늘어날 수록 메모리 사용 증대로 서버부하 증가</td>
+								</tr>
+								<tr>
+									<td><strong>저메모리 방식</strong></td>
+									<td>메모리 최소화, 디스크 활용 (안정적)</td>
+									<td>데이터의 양과 관계없이 최소한의 메모리 사용으로 서버부하 최소화</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- 다운로드 상태 및 시간 표시 영역 (JavaScript에서 사용) -->
+					<div id="statusArea" class="mt-3 alert alert-info" style="display: none;">
+						<span id="statusMessage">상태 메시지</span>
+						<span class="float-end">경과 시간: <strong id="timeTakenDisplay">0.00</strong> 초</span>
+					</div>
+
+				</div>
+			</div>
+			<!-- /container mt-4 종료 -->
+			<!-- 사용자 전환 모달 (팝업창) -->
+			<div class="modal fade" id="switchUserModal" tabindex="-1" aria-labelledby="switchUserModalLabel"
+				aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="switchUserModalLabel">기관사용자 전환</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<!-- 폼 액션은 SecurityConfig.setSwitchUserUrl("/switch-user")와 일치 -->
+						<form action="/switch-user" method="post">
+							<div class="modal-body">
+								<p>전환할 기관사용자를 선택하세요:</p>
+								<!-- 사용자 목록이 동적으로 삽입될 영역 -->
+								<ul id="userList" class="list-group">
+									<!-- jQuery로 여기에 <li> 항목들이 추가됩니다 -->
+								</ul>
+
+								<!-- 선택된 사용자의 ID를 넘겨주기 위한 숨겨진 input -->
+								<input type="hidden" id="selectedUsername" name="username" required>
+								<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+								<button type="submit" class="btn btn-primary" id="submitSwitch" disabled>전환하기</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<!-- jQuery 스크립트: 데이터 표시 및 버튼 이벤트 처리 -->
+			<script>
+				$(document).ready(function () {
+					// 임의의 JVM 메모리 데이터 (실제 데이터는 서버에서 가져와야 함)
+					const totalMemoryMB = 0;
+					const usedMemoryMB = 0;
+					const usagePercent = ((usedMemoryMB / totalMemoryMB) * 100).toFixed(1); // 소수점 첫째 자리까지
+
+					// 1. 화면 요소 업데이트
+					$('#totalMemory').text(totalMemoryMB + ' MB');
+					$('#usedMemory').text(usedMemoryMB + ' MB');
+					$('#usagePercent').text(usagePercent + '%');
+
+					// 2. 프로그레스 바 업데이트
+					const progressBar = $('#memoryProgressBar');
+					progressBar.css('width', usagePercent + '%');
+					progressBar.attr('aria-valuenow', usagePercent);
+
+					// 사용률에 따라 프로그레스 바 색상 변경 (예시)
+					if (usagePercent > 80) {
+						progressBar.removeClass('bg-info').addClass('bg-danger');
+					} else if (usagePercent > 50) {
+						progressBar.removeClass('bg-info').addClass('bg-warning');
+					}
+
+					// -----------------------------------------------------------
+					// 공통 유틸리티 함수: 버튼 클릭 로직을 추상화하여 재사용
+					// -----------------------------------------------------------
+					function handleDownloadClick(buttonId, endpointUrl, fileName, buttonName) {
+						// 두 버튼 요소를 모두 가져옵니다.
+						const currentButton = document.getElementById(buttonId);
+						const memoryModeBtn = document.getElementById('memoryModeBtn');
+						const hardDiskModeBtn = document.getElementById('hardDiskModeBtn');
+
+						const statusArea = document.getElementById('statusArea');
+						const statusMessage = document.getElementById('statusMessage');
+						const timeTakenDisplay = document.getElementById('timeTakenDisplay');
+
+						let startTime;
+						let timerInterval;
+
+						currentButton.addEventListener('click', function () {
+
+							// 1. 선택된 라디오 버튼의 값 (행 개수)을 가져옵니다.
+							const selectedRadioButton = document.querySelector('input[name="rowCountOption"]:checked');
+							const rowCount = selectedRadioButton ? selectedRadioButton.value : '50000'; // 기본값 50000 설정
+
+							// 2. 서버로 보낼 최종 URL을 생성합니다. (쿼리 파라미터 추가)
+							const finalEndpointUrl = `${endpointUrl}?rowCount=${rowCount}`;
+
+							// --- 1. 두 버튼 모두 비활성화 및 UI 초기화 ---
+							memoryModeBtn.disabled = true;
+							hardDiskModeBtn.disabled = true; // 다른 버튼도 비활성화
+
+							statusArea.style.display = 'block';
+							statusMessage.textContent = `${buttonName} 서버에 요청 중...`;
+							statusMessage.className = 'text-primary';
+							timeTakenDisplay.textContent = '0.00';
+
+							startTime = Date.now();
+							timerInterval = setInterval(() => {
+								const currentTime = Date.now();
+								const elapsedSeconds = (currentTime - startTime) / 1000;
+								timeTakenDisplay.textContent = elapsedSeconds.toFixed(2);
+							}, 100);
+
+							// --- 2. 엑셀 다운로드 요청 ---
+							fetch(finalEndpointUrl)
+								.then(response => {
+									clearInterval(timerInterval);
+									if (response.ok) {
+										statusMessage.textContent = `${buttonName} 엑셀 파일 다운로드 처리 중...`;
+										return response.blob();
+									}
+									throw new Error('네트워크 응답 오류 또는 서버 오류');
+								})
+								.then(blob => {
+									statusMessage.textContent = '다운로드 완료!';
+
+									// 파일 다운로드 처리
+									const url = window.URL.createObjectURL(blob);
+									const a = document.createElement('a');
+									a.style.display = 'none';
+									a.href = url;
+									a.download = fileName.replace('.xlsx', `_${rowCount}rows.xlsx`);
+									document.body.appendChild(a);
+									a.click();
+									window.URL.revokeObjectURL(url);
+								})
+								.catch(error => {
+									clearInterval(timerInterval);
+									console.error('다운로드 중 오류 발생:', error);
+									statusMessage.textContent = '오류 발생: ' + error.message;
+									statusMessage.className = 'text-danger';
+									alert('엑셀 다운로드 중 오류가 발생했습니다.');
+								})
+								.finally(() => {
+									// --- 3. 최종 완료 후 두 버튼 모두 다시 활성화 ---
+									memoryModeBtn.disabled = false;
+									hardDiskModeBtn.disabled = false;
+
+									const finalTime = (Date.now() - startTime) / 1000;
+									timeTakenDisplay.textContent = finalTime.toFixed(2);
+								});
+						});
+					}
+
+					// -----------------------------------------------------------
+					// 각 버튼에 이벤트 핸들러 연결
+					// -----------------------------------------------------------
+
+					// Memory 방식 버튼 이벤트 연결
+					handleDownloadClick(
+						'memoryModeBtn',
+						'/api/excel/download/memory',
+						'HighMemory_download.xlsx'
+						, '고메모리 방식'
+					);
+
+					// HardDisk 방식 버튼 이벤트 연결
+					handleDownloadClick(
+						'hardDiskModeBtn',
+						'/api/excel/download/harddisk',
+						'lowMemory_download.xlsx'
+						, '저메모리 방식'
+					);
+				});
+
+
+
+				// -----------------------------------------------------------
+				// JVM 메모리 사용 현황 실시간 업데이트 로직
+				// -----------------------------------------------------------
+
+				const totalMemoryElem = document.getElementById('totalMemory');
+				const usedMemoryElem = document.getElementById('usedMemory');
+				// committedMemoryElem UI 요소 추가
+				const committedMemoryElem = document.getElementById('committedMemory');
+				const usagePercentElem = document.getElementById('usagePercent');
+				const progressBarElem = document.getElementById('memoryProgressBar');
+
+				// Actuator 엔드포인트 URL (실제 환경에 맞게 조정 필요)
+				const USED_URL = '/actuator/metrics/jvm.memory.used';
+				const MAX_URL = '/actuator/metrics/jvm.memory.max';
+				// COMMITTED_URL 추가
+				const COMMITTED_URL = '/actuator/metrics/jvm.memory.committed';
+
+				// 바이트(Bytes)를 MB(Megabytes)로 변환하는 헬퍼 함수
+				function bytesToMB(bytes) {
+					if (bytes === null || isNaN(bytes)) return 'N/A';
+					return (bytes / (1024 * 1024)).toFixed(2);
+				}
+
+				// 1초마다 메모리 정보를 업데이트하는 함수
+				function updateMemoryUsage() {
+					// 최대 메모리 용량을 먼저 가져옵니다.
+					fetch(MAX_URL) // MAX_URL 사용
+						.then(response => response.json())
+						.then(maxData => {
+							const maxMemoryBytes = maxData.measurements[0].value;
+							const maxMemoryMB = bytesToMB(maxMemoryBytes);
+							totalMemoryElem.textContent = `${maxMemoryMB} MB`;
+
+							// 사용 중인 메모리와 커밋된 메모리를 병렬로 가져옵니다.
+							return Promise.all([
+								fetch(USED_URL).then(res => res.json()),
+								fetch(COMMITTED_URL).then(res => res.json())
+							]).then(([usedData, committedData]) => {
+								const usedMemoryBytes = usedData.measurements[0].value;
+								const committedMemoryBytes = committedData.measurements[0].value;
+
+								const usedMemoryMB = bytesToMB(usedMemoryBytes);
+								const committedMemoryMB = bytesToMB(committedMemoryBytes);
+
+								usedMemoryElem.textContent = `${usedMemoryMB} MB`;
+								committedMemoryElem.textContent = `${committedMemoryMB} MB`; // committed UI 업데이트
+
+								// 사용률 계산 (최대치 대비 사용량 기준)
+								const usagePercent = (usedMemoryBytes / committedMemoryBytes) * 100;
+								usagePercentElem.textContent = `${usagePercent.toFixed(2)}%`;
+
+								// 프로그레스 바 업데이트
+								progressBarElem.style.width = `${usagePercent.toFixed(2)}%`;
+								progressBarElem.setAttribute('aria-valuenow', usagePercent.toFixed(2));
+
+								// 사용률에 따라 프로그레스 바 색상 변경 (Bootstrap classes)
+								if (usagePercent < 70) {
+									progressBarElem.className = 'progress-bar bg-success';
+								} else if (usagePercent < 90) {
+									progressBarElem.className = 'progress-bar bg-warning';
+								} else {
+									progressBarElem.className = 'progress-bar bg-danger';
+								}
+							});
+						})
+						.catch(error => {
+							console.error("Failed to fetch JVM metrics:", error);
+							// 오류 발생 시 UI에 메시지 표시
+							totalMemoryElem.textContent = "오류 발생";
+							usedMemoryElem.textContent = "오류 발생";
+							committedMemoryElem.textContent = "오류 발생"; // 오류 메시지 추가
+							usagePercentElem.textContent = "오류 발생";
+						});
+				}
+
+				// 페이지 로드 시 바로 실행
+				updateMemoryUsage();
+
+				// 5초마다 주기적으로 업데이트
+				setInterval(updateMemoryUsage, 1000);
+
+
+
+				// 모달이 열리기 직전에 AJAX 요청으로 데이터 불러오기
+				$('#switchUserModal').on('show.bs.modal', function (e) {
+					// 리스트 초기화
+					$('#userList').empty();
+
+					// AJAX 호출
+					$.ajax({
+						url: '/api/members/org', // 2단계에서 만든 API URL
+						method: 'GET',
+						success: function (data) {
+							// 데이터(JSON 배열)를 받아 리스트 항목 생성
+							data.forEach(function (user) {
+								var listItem = $('<li class="list-group-item list-group-item-action"></li>')
+									.text(user.id)
+									.attr('data-username', user.id);
+
+								// 리스트 항목 클릭 시 선택 처리
+								listItem.click(function () {
+									// 모든 항목의 active 클래스 제거
+									$('#userList .list-group-item').removeClass('active');
+									// 클릭된 항목에 active 클래스 추가
+									$(this).addClass('active');
+									// 숨겨진 input에 username 설정
+									$('#selectedUsername').val(user.id);
+									// 전환 버튼 활성화
+									$('#submitSwitch').prop('disabled', false);
+								});
+
+								$('#userList').append(listItem);
+							});
+						},
+						error: function (error) {
+							$('#userList').append('<li class="list-group-item text-danger">사용자 목록을 불러오지 못했습니다.</li>');
+						}
+					});
+				});
+			</script>
+
+			<th:block layout:fragment="script-extra">
+				<script>
+            // ... (기존 jQuery 스크립트 내용) ...
+				</script>
+			</th:block>
+
+</body>
+
+</html>

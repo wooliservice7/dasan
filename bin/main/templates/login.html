@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="www.ultraq.net.nz"
+      layout:decorate="~{default_layout}"> <!-- 기본 레이아웃 적용 -->
+<head>
+    <title>로그인</title>
+</head>
+<body>
+
+<!-- default_layout.html의 layout:fragment="content" 영역에 들어갈 내용 -->
+<div layout:fragment="content">
+    
+    <div class="row justify-content-center mt-5 pt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">로그인</h2>
+                </div>
+                <div class="card-body">
+                    <!-- 로그인 폼 -->
+                    <form th:action="@{/login}" method="post">
+                        
+                        <!-- 아이디 입력 -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">아이디 (ID)</label>
+                            <input type="text" id="username" name="username" class="form-control" required/>
+                        </div>
+
+                        <!-- 비밀번호 입력 -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">비밀번호 (Password)</label>
+                            <input type="password" id="password" name="password" class="form-control" required/>
+                        </div>
+                                                
+                        <!-- 로그인 버튼 -->
+                        <button type="submit" class="btn btn-primary w-100">로그인</button>
+                    </form>
+                    
+                    <!-- 로그인 실패 메시지 표시 영역 -->
+                    <!-- URL에 error 파라미터가 있을 때만 이 div가 표시됩니다. -->
+                    <div th:if="${param.error}" class="alert alert-danger mt-3">
+                        아이디 또는 비밀번호가 유효하지 않습니다.
+                    </div>
+
+                    <!-- 회원가입 성공 메시지 표시 영역 -->
+                    <div th:if="${param.registerSuccess}" class="alert alert-success mt-3">
+                        회원가입이 완료되었습니다. 로그인해 주세요.
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a th:href="@{/register}">아직 회원이 아니신가요?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+</body>
+</html>

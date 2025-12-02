@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+    namespace 속성은 매핑할 인터페이스의 풀 패키지 경로를 지정합니다. 
+    이는 XML의 SQL ID와 인터페이스의 메서드 이름을 연결하는 중요한 역할을 합니다.
+-->
+<mapper namespace="com.mysite.dasan.MemberMapper">
+
+    <insert id="insertMember" parameterType="com.mysite.dasan.MemberVO">
+        INSERT INTO MEMBER (
+        	NO,
+            ID, 
+            PASSWORD, 
+            EMAIL, 
+            ROLE, 
+            CREATE_DATE
+        ) VALUES (
+        	MEMBER_NOSEQ.NEXTVAL,
+            #{id}, 
+            #{password}, 
+            #{email}, 
+            #{role}, 
+            <!-- Oracle의 SYSDATE 함수를 사용하여 서버 시간으로 입력 -->
+            SYSDATE 
+        )
+    </insert>
+    
+    <select id="selectMemberById" resultType="com.mysite.dasan.MemberVO">
+        SELECT             
+            ID, 
+            PASSWORD, 
+            EMAIL, 
+            ROLE, 
+            CREATE_DATE
+        FROM 
+            MEMBER
+        WHERE 
+            ID = #{id} <!-- #{id}는 메서드의 파라미터 'id'를 참조합니다 -->
+    </select>
+    
+    <select id="selectMembersByRoleOrg" resultType="com.mysite.dasan.MemberVO">
+        SELECT             
+            ID, 
+            PASSWORD, 
+            EMAIL, 
+            ROLE, 
+            CREATE_DATE
+        FROM 
+            MEMBER
+        WHERE 
+            ROLE = 'ORG' 
+    </select>
+    
+    <select id="selectAllUnitTask" resultType="com.mysite.dasan.UnitTaskVO">
+        SELECT             
+                id,level1,level2,level3,level4,level5,level6,department
+        FROM 
+            Unit_Task
+            <if test="rowCount > 0">
+    			LIMIT #{rowCount}
+    		</if>
+    </select>
+    
+    <select id="streamAllUnitTasks" resultType="com.mysite.dasan.UnitTaskVO" fetchSize="10000">
+        SELECT             
+                id,level1,level2,level3,level4,level5,level6,department
+        FROM 
+            Unit_Task
+            <if test="rowCount > 0">
+    			LIMIT #{rowCount}
+    		</if>
+    </select>
+    
+    
+    
+    
+
+</mapper>
