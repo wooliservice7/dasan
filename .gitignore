@@ -1,0 +1,31 @@
+# Gradle
+.gradle/
+build/
+bin/
+*.class
+*.jar
+*.war
+*.rar
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+
+# Dependencies
+/lib/
+/target/
+/out/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Local files
+*.log
+*.pid
+*.seed

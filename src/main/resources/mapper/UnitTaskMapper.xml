@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+    UNIT_TASK 테이블 관련 SQL 매핑
+    namespace 속성은 매핑할 인터페이스의 풀 패키지 경로를 지정합니다. 
+-->
+<mapper namespace="com.mysite.dasan.excel.UnitTaskMapper">
+
+    <select id="selectAllUnitTask" resultType="com.mysite.dasan.excel.UnitTaskVO">
+        SELECT             
+                id,level1,level2,level3,level4,level5,level6,department
+        FROM 
+            Unit_Task
+            <if test="rowCount > 0">
+    			LIMIT #{rowCount}
+    		</if>
+    </select>
+    
+    <select id="streamAllUnitTasks" resultType="com.mysite.dasan.excel.UnitTaskVO" fetchSize="10000">
+        SELECT             
+                id,level1,level2,level3,level4,level5,level6,department
+        FROM 
+            Unit_Task
+            <if test="rowCount > 0">
+    			LIMIT #{rowCount}
+    		</if>
+    </select>
+
+</mapper>

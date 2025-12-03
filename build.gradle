@@ -9,9 +9,8 @@ version = '0.0.1-SNAPSHOT'
 description = 'hjs project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(20)
-	}
+	sourceCompatibility = '20'
+	targetCompatibility = '20'
 }
 
 repositories {
@@ -32,12 +31,15 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     // 테스트 및 개발 도구
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    
+    // Test용 H2 In-Memory Database
+    testImplementation 'com.h2database:h2:2.2.224'
     
     // jQuery WebJar 의존성 추가 (최신 버전 확인 후 입력)
     implementation 'org.webjars:jquery:3.7.1'
@@ -56,6 +58,10 @@ dependencies {
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    
+    // Jakarta Validation API (Spring Boot 3.x에서 필요)
+    implementation 'jakarta.validation:jakarta.validation-api'
+    implementation 'org.hibernate.validator:hibernate-validator'
 }
 
 tasks.named('test') {

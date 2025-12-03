@@ -1,8 +1,11 @@
-package com.mysite.dasan;
+package com.mysite.dasan.excel;
 
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 업무 작업 정보 데이터 전송 객체
+ */
 @Getter
 @Setter
 public class UnitTaskVO {
@@ -15,5 +18,4 @@ public class UnitTaskVO {
 	private String level5;
 	private String level6;
 	private String department;
-	
 }

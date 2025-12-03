@@ -1,4 +1,4 @@
-package com.mysite.dasan;
+package com.mysite.dasan.member;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 
+/**
+ * 회원 관련 비즈니스 로직을 담당하는 서비스
+ */
 @Service
 @AllArgsConstructor
 public class MemberService implements UserDetailsService {
