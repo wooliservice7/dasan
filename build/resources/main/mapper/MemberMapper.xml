@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <!-- 
+    MEMBER 테이블 관련 SQL 매핑
     namespace 속성은 매핑할 인터페이스의 풀 패키지 경로를 지정합니다. 
-    이는 XML의 SQL ID와 인터페이스의 메서드 이름을 연결하는 중요한 역할을 합니다.
 -->
-<mapper namespace="com.mysite.dasan.MemberMapper">
+<mapper namespace="com.mysite.dasan.member.MemberMapper">
 
-    <insert id="insertMember" parameterType="com.mysite.dasan.MemberVO">
+    <insert id="insertMember" parameterType="com.mysite.dasan.member.MemberVO">
         INSERT INTO MEMBER (
         	NO,
             ID, 
@@ -26,7 +26,7 @@
         )
     </insert>
     
-    <select id="selectMemberById" resultType="com.mysite.dasan.MemberVO">
+    <select id="selectMemberById" resultType="com.mysite.dasan.member.MemberVO">
         SELECT             
             ID, 
             PASSWORD, 
@@ -39,7 +39,7 @@
             ID = #{id} <!-- #{id}는 메서드의 파라미터 'id'를 참조합니다 -->
     </select>
     
-    <select id="selectMembersByRoleOrg" resultType="com.mysite.dasan.MemberVO">
+    <select id="selectMembersByRoleOrg" resultType="com.mysite.dasan.member.MemberVO">
         SELECT             
             ID, 
             PASSWORD, 
@@ -51,29 +51,5 @@
         WHERE 
             ROLE = 'ORG' 
     </select>
-    
-    <select id="selectAllUnitTask" resultType="com.mysite.dasan.UnitTaskVO">
-        SELECT             
-                id,level1,level2,level3,level4,level5,level6,department
-        FROM 
-            Unit_Task
-            <if test="rowCount > 0">
-    			LIMIT #{rowCount}
-    		</if>
-    </select>
-    
-    <select id="streamAllUnitTasks" resultType="com.mysite.dasan.UnitTaskVO" fetchSize="10000">
-        SELECT             
-                id,level1,level2,level3,level4,level5,level6,department
-        FROM 
-            Unit_Task
-            <if test="rowCount > 0">
-    			LIMIT #{rowCount}
-    		</if>
-    </select>
-    
-    
-    
-    
 
 </mapper>

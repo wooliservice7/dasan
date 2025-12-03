@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Excel 파일 다운로드 및 조회 관련 API를 처리하는 컨트롤러
+ * Excel 파일 다운로드 및 조회 관련 API를 처리하는 컨트롤러임
  */
 @Controller
 @RequestMapping("/api/excel")
